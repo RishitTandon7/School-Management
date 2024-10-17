@@ -39,21 +39,23 @@ public class LoginPage extends JFrame {
         add(loginButton);
     }
 
-    private void loginUser(String email, String password) {
+    private void loginUser(String username, String password) {
         String userType = "";
-
+    
         try {
             // Connect to the database
-           Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/SchoolManagement", "root", "root");
-            String sql = "SELECT user_type FROM users WHERE email = ? AND password = ?";
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/SchoolManagement", "root", "root");
+            
+            // Ensure you're selecting the correct field (e.g., user_type or role)
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, email);
+            preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
-
+    
             if (resultSet.next()) {
-                userType = resultSet.getString("user_type");
-
+                userType = resultSet.getString("role");  // Fetching the correct column
+    
                 // Open the respective dashboard based on user type
                 if (userType.equals("student")) {
                     new StudentDashboard().setVisible(true);
@@ -64,7 +66,7 @@ public class LoginPage extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid email or password.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
+    
             // Close the database connection
             connection.close();
         } catch (Exception ex) {
@@ -72,6 +74,7 @@ public class LoginPage extends JFrame {
             JOptionPane.showMessageDialog(this, "Database connection error.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
